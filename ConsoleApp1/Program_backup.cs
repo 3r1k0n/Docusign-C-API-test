@@ -144,7 +144,7 @@ namespace TestProj
 
                         Text nameTab = new Text();
 
-                        nameTab.DocumentId = "1";
+                        nameTab.DocumentId = "1"; 
                         nameTab.AnchorString = "Signatures";
                         nameTab.Name = nameTab.TabLabel = "Name";
                         nameTab.AnchorCaseSensitive = "true";
