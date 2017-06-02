@@ -48,28 +48,13 @@ namespace TestProj
             // the document (file) we want signed
             string templateId = "37c5956a-2fab-447e-995c-fb3733fb866d";
 
-
-            // (name, email, adult, primary_signer
-            //List<Tuple<string, string, bool, bool>> listOfPeople = new List<Tuple<string, string, bool, bool>> {
-            //    Tuple.Create("Erik Percic", "3r1k0n@gmail.com", true, true),
-            //    Tuple.Create("Kim Sabo", "erik.percic@gmail.com", true, false),
-            //    Tuple.Create("Marco Marchi", "erik.percic@gmail.com", true, false),
-            //    Tuple.Create("Dotcom Harvey", "erik.percic@gmail.com", true, false),
-            //    Tuple.Create("Senor Fuego", "erik.percic@gmail.com", true, false),
-            //    Tuple.Create("Suleima Diaz", "erik.percic0708@gmail.com", true, false),
-            //    Tuple.Create("Jackie Salas", "erik.percic@hotmail.com", false, false)
-            // };
-
             List<Person> listOfPeople = new List<Person> {
                 new Person { Name="Erik Percic", Email = "3r1k0n@gmail.com", Adult=true, PrimarySigner=true},
-
                 new Person { Name="Kim Sabo", Email = "erik.percic@gmail.com", Adult=true},
                 new Person { Name="Marco Marchi", Email = "erik.percic@gmail.com", Adult=true},
                 new Person { Name="Senor Fuego", Email = "erik.percic@gmail.com", Adult=true},
                 new Person { Name="Dotcom Harvey", Email = "erik.percic@gmail.com", Adult=true},
-
                 new Person { Name="Suleima Diaz", Email = "erik.percic0708@gmail.com", Adult=true},
-
                 new Person { Name="Jackie Salas", Email = "erik.percic@hotmail.com", Adult=false},
              };
 
@@ -95,6 +80,7 @@ namespace TestProj
 
             List<TemplateRole> listOfRoles = new List<TemplateRole>();
             Person[] arrayOfAdults = listOfPeople.Where(x => x.Adult == true).ToArray();
+
             for (int i=0;i<arrayOfAdults.Length;i++)
             {
                 Person p = arrayOfAdults[i];
@@ -110,6 +96,7 @@ namespace TestProj
                 if (p.PrimarySigner) //person is primary signer
                 {
                     tRole.RoleName = "Primary Signer";
+                    tRole.RoutingOrder = "1";
 
                     Text rent_amount_tab = new Text();
                     rent_amount_tab.TabLabel = "\\*rent_amount";
@@ -123,18 +110,20 @@ namespace TestProj
                     other_occupants_tab.TabLabel = "\\*other_occupants";
                     other_occupants_tab.Value = String.Join(", ", arrayOfAdults.Select(x => x.Name).ToArray());
 
-                    for(int j = 0; j < arrayOfAdults.Length;j++)
+                    tRole.Tabs.TextTabs.AddRange(new List<Text> { rent_amount_tab, property_address_tab, other_occupants_tab });
+
+                    for (int j = 0; j < arrayOfAdults.Length;j++)
                     {
                         Text lineTab = new Text();
 
-                        lineTab.DocumentId = "1";
-                        lineTab.AnchorString = "Signatures";
+                        lineTab.DocumentId = lineTab.PageNumber = "1";
                         lineTab.Name = lineTab.TabLabel = "Line";
+                        
+                        lineTab.AnchorString = "Signatures";
                         lineTab.AnchorCaseSensitive = "true";
                         lineTab.AnchorXOffset = ((j%SIGNATURE_COLUMNS) * 100).ToString();
                         lineTab.AnchorYOffset = ((j/3)*80+60).ToString();
                         lineTab.AnchorUnits = "pixels";
-                        lineTab.PageNumber = "1";
 
                         lineTab.Value = "_______________";
                         lineTab.Locked = "true";
@@ -144,14 +133,14 @@ namespace TestProj
 
                         Text nameTab = new Text();
 
-                        nameTab.DocumentId = "1"; 
-                        nameTab.AnchorString = "Signatures";
+                        nameTab.DocumentId = nameTab.PageNumber = "1";
                         nameTab.Name = nameTab.TabLabel = "Name";
+
+                        nameTab.AnchorString = "Signatures";
                         nameTab.AnchorCaseSensitive = "true";
                         nameTab.AnchorXOffset = ((j % SIGNATURE_COLUMNS) * 100+3).ToString();
                         nameTab.AnchorYOffset = ((j / 3) * 80 + 60+10).ToString();
                         nameTab.AnchorUnits = "pixels";
-                        nameTab.PageNumber = "1";
 
                         nameTab.Value = arrayOfAdults[j].Name;
                         nameTab.Locked = "true";
@@ -159,12 +148,11 @@ namespace TestProj
 
                         tRole.Tabs.TextTabs.Add(nameTab);
                     }
-
-                    tRole.Tabs.TextTabs.AddRange(new List<Text> { rent_amount_tab, property_address_tab, other_occupants_tab });
                 }
                 else
                 {
-                    tRole.RoleName = "Adult " + (i + 2).ToString();
+                    tRole.RoleName = "Adult";
+                    tRole.RoutingOrder = "2";
                 }
 
                 //calculate signature offsets
@@ -173,15 +161,14 @@ namespace TestProj
 
                 SignHere signatureTab = new SignHere();
 
-                signatureTab.DocumentId =  "1";
-                signatureTab.AnchorString = "Signatures";
+                signatureTab.DocumentId = signatureTab.PageNumber = "1";
                 signatureTab.Name = signatureTab.TabLabel = "Sign Here";
+
+                signatureTab.AnchorString = "Signatures";
                 signatureTab.AnchorCaseSensitive = "true";
-                signatureOffsetX.ToString();
                 signatureTab.AnchorXOffset = (signatureOffsetX + 20).ToString();
                 signatureTab.AnchorYOffset = signatureOffsetY.ToString();
                 signatureTab.AnchorUnits = "pixels";
-                signatureTab.PageNumber = "1";
 
                 tRole.Tabs.SignHereTabs.Add(signatureTab);
                 listOfRoles.Add(tRole);
